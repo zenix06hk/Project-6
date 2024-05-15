@@ -11,13 +11,17 @@ const saucesSchema = new Schema({
   imageUrl: String,
   heat: Number,
   likes: Number,
-  likes: Number,
-  users: [
+  dislikes: Number,
+  userLiked: [
     {
-      liked: string,
-      disliked: string,
+      userId: String,
+    },
+  ],
+  userDisliked: [
+    {
+      userId: String,
     },
   ],
 });
 
-module.exports = mongoose.model("sauces", saucesSchema);
+module.exports = mongoose.model("saucesInfo", saucesSchema);
