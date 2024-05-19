@@ -24,4 +24,4 @@ const saucesSchema = new Schema({
   ],
 });
 
-module.exports = mongoose.model("saucesInfo", saucesSchema);
+module.exports = model("saucesInfo", saucesSchema);
