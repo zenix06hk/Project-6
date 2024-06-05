@@ -6,6 +6,8 @@ const mongoose = require("mongoose");
 const saucesRoutes = require("./routes/sauces");
 const authRoutes = require("./routes/auth.js");
 
+const bcrypt = require("bcrypt");
+
 app.use(cors());
 
 mongoose
@@ -36,10 +38,6 @@ app.use((req, res, next) => {
 });
 
 // allow send the request
-
-app.use("/", (req, res) => {
-  res.send("Hello testing");
-});
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
