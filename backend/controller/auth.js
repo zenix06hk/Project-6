@@ -1,5 +1,6 @@
 const userModel = require("../model/user");
 const bcrypt = require("bcrypt");
+const saltRounds = 10;
 // exports.testSave = (req, res) => {
 //   const userData = new userModel({
 //     email: req.body.email,
@@ -27,7 +28,8 @@ exports.signUp = (req, res) => {
     email: req.body.email,
     password: req.body.password,
   });
-  NewUser.save()
+  newUser
+    .save()
     .then(() => {
       res.status(200).json({ message: "Password encrypt" });
     })
