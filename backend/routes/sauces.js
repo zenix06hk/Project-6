@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
+const auth = require("../middleware/auth");
 //handling income GET request to /sauces and /sauces/:id
 const saucesCtrl = require("../controller/sauces");
 
