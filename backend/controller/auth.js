@@ -1,4 +1,4 @@
-const userModel = require("../model/user");
+const userModel = require("../models/user");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const saltRounds = 10;
@@ -33,14 +33,14 @@ exports.signUp = (req, res) => {
         email: req.body.email,
         password: hash,
       });
-
       newUser
         .save()
         .then(() => {
           res.status(200).json({ message: "Password encrypt" });
         })
         .catch((error) => {
-          res.status(500).json({ message: "Password failed encrypt" });
+          res.status(500).json({ error: error });
+          // res.status(500).json({ message: "Password failed encrypt" });
         });
     })
     .catch((error) => {
@@ -49,7 +49,8 @@ exports.signUp = (req, res) => {
 };
 
 exports.login = (req, res) => {
-  User.findOne({ email: req.body.email })
+  userModel
+    .findOne({ email: req.body.email })
     .then((user) => {
       if (!user) {
         return res.status(401).json({

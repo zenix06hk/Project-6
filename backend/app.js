@@ -3,6 +3,8 @@ const app = express();
 const cors = require("cors");
 const mongoose = require("mongoose");
 
+const saucesData = require("./models/sauces.js");
+
 const saucesRoutes = require("./routes/sauces");
 const authRoutes = require("./routes/auth.js");
 
