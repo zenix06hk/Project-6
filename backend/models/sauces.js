@@ -1,27 +1,18 @@
 const mongoose = require("mongoose");
-const { Schema, model } = mongoose;
 
-const saucesSchema = new Schema({
+const saucesSchema = mongoose.Schema({
   //(equals mongoose.Schema)
-  userId: String,
-  name: String,
-  manufacturer: String,
-  description: String,
-  mainPepper: String,
-  imageUrl: String,
-  heat: Number,
-  likes: Number,
-  dislikes: Number,
-  userLiked: [
-    {
-      userId: String,
-    },
-  ],
-  userDisliked: [
-    {
-      userId: String,
-    },
-  ],
+  userId: { type: String, require: true },
+  name: { type: String, require: true },
+  manufacturer: { type: String, require: true },
+  description: { type: String, require: true },
+  mainPepper: { type: String, require: true },
+  imageUrl: { type: String, require: true },
+  heat: { type: Number, require: true },
+  likes: { type: Number, require: true },
+  dislikes: { type: Number, require: true },
+  userLiked: [],
+  userDisliked: [],
 });
 
-module.exports = model("saucesInfo", saucesSchema);
+module.exports = mongoose.model("saucesData", saucesSchema);

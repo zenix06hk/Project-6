@@ -3,14 +3,12 @@ const app = express();
 const cors = require("cors");
 const mongoose = require("mongoose");
 
-const saucesData = require("./models/sauces.js");
-
 const saucesRoutes = require("./routes/sauces");
 const authRoutes = require("./routes/auth.js");
 
-const bcrypt = require("bcrypt");
-
 app.use(cors());
+
+//mongodb+srv://alvin06hk:<password>@database-z.p8xkqwp.mongodb.net/?retryWrites=true&w=majority&appName=database-z
 
 mongoose
   .connect(
@@ -25,21 +23,6 @@ mongoose
   });
 
 //'*' Allow any origin
-
-app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-with, content-Type, Accept, Authorization"
-  );
-  res.header(
-    "Access-Control-Allow-Methods",
-    "GET, POST, PUT, DELETE, PATCH, OPTIONS"
-  );
-  next();
-});
-
-// allow send the request
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
