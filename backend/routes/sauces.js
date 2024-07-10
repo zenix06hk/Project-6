@@ -3,7 +3,6 @@ const router = express.Router();
 
 const auth = require("../middleware/auth");
 const multer = require("../middleware/multer-config");
-//handling income GET request to /sauces and /sauces/:id
 const saucesCtrl = require("../controller/sauces");
 
 router.get("/", auth, saucesCtrl.saucesList);
