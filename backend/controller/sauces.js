@@ -40,7 +40,7 @@ exports.saucesSave = (req, res, next) => {
     imageUrl: imageUrl + "/images/" + req.file.filename,
     heat: sauceDataForm.heat,
     likes: sauceDataForm.likes ? sauceDataForm.likes : Number(),
-    dislikes: sauceDataForm.dislikes ? sauceDataForm.likes : Number(),
+    dislikes: sauceDataForm.dislikes,
     userLiked: sauceDataForm.userLiked,
     userDisliked: sauceDataForm.userDisliked,
   });
