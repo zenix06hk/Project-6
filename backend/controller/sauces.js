@@ -29,7 +29,6 @@ exports.saucesSave = (req, res, next) => {
   // }
   // req.body.sauces = JSON.parse(req.body.sauces);
   const sauceDataForm = JSON.parse(req.body.sauce);
-  const imageUrl = req.protocol + "://" + req.get("host");
   console.log(sauceDataForm);
   const sauces = new saucesModel({
     userId: sauceDataForm.userId,
@@ -37,12 +36,12 @@ exports.saucesSave = (req, res, next) => {
     manufacturer: sauceDataForm.manufacturer,
     description: sauceDataForm.description,
     mainPepper: sauceDataForm.mainPepper,
-    imageUrl: imageUrl + "/images/" + req.file.filename,
+    imageUrl: req.file.filename,
     heat: sauceDataForm.heat,
-    likes: sauceDataForm.likes ? sauceDataForm.likes : Number(),
-    dislikes: sauceDataForm.dislikes,
-    userLiked: sauceDataForm.userLiked,
-    userDisliked: sauceDataForm.userDisliked,
+    likes: 0,
+    dislikes: 0,
+    userLiked: [],
+    userDisliked: [],
   });
   console.log(sauces.userId);
   console.log(sauces.name);
@@ -58,13 +57,14 @@ exports.saucesSave = (req, res, next) => {
 
   sauces
     .save()
-    .then((req, res, next) => {
+    .then(() => {
       res.status(201).json({
         message: "Post saved successfully",
       });
     })
 
     .catch((error) => {
+      console.log(error);
       res.status(400).json({
         error: error,
       });
