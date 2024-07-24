@@ -4,16 +4,20 @@ exports.saucesList = (req, res, next) => {
   saucesModel
     .find()
     .then((sauces) => {
-      //   const addImagePath = imgUrl.map((iamge) =>{
-
-      //   }
-      // )
-      // res.status(200).json(sauce);
       const mappedProducts = sauces.map((sauce) => {
-        saucesModel.imageUrl =
-          req.protocol + "://" + req.get("host") + "/images/" + sauce.imageUrl;
-        return sauce;
+        // console.log(sauce);
+        return {
+          ...sauce._doc,
+          imageUrl:
+            req.protocol +
+            "://" +
+            req.get("host") +
+            "/images/" +
+            sauce.imageUrl,
+        };
       });
+      // console.log("/////////////////////////////////////");
+      // console.log(mappedProducts);
       res.status(200).json(mappedProducts);
     })
     .catch((error) => {
@@ -29,7 +33,7 @@ exports.saucesSave = (req, res, next) => {
   // }
   // req.body.sauces = JSON.parse(req.body.sauces);
   const sauceDataForm = JSON.parse(req.body.sauce);
-  console.log(sauceDataForm);
+  // console.log(sauceDataForm);
   const sauces = new saucesModel({
     userId: sauceDataForm.userId,
     name: sauceDataForm.name,
@@ -43,17 +47,17 @@ exports.saucesSave = (req, res, next) => {
     userLiked: [],
     userDisliked: [],
   });
-  console.log(sauces.userId);
-  console.log(sauces.name);
-  console.log(sauces.manufacturer);
-  console.log(sauces.description);
-  console.log(sauces.mainPepper);
-  console.log(sauces.imageUrl);
-  console.log(sauces.heat);
-  console.log(sauces.likes);
-  console.log(sauces.dislikes);
-  console.log(sauces.userLiked);
-  console.log(sauces.userDisliked);
+  // console.log(sauces.userId);
+  // console.log(sauces.name);
+  // console.log(sauces.manufacturer);
+  // console.log(sauces.description);
+  // console.log(sauces.mainPepper);
+  // console.log(sauces.imageUrl);
+  // console.log(sauces.heat);
+  // console.log(sauces.likes);
+  // console.log(sauces.dislikes);
+  // console.log(sauces.userLiked);
+  // console.log(sauces.userDisliked);
 
   sauces
     .save()
@@ -72,34 +76,41 @@ exports.saucesSave = (req, res, next) => {
 };
 
 exports.saucesListId = (req, res, next) => {
+  const requestSegments = req.path.split("/");
+  const requestSegmentsObject = { id: requestSegments };
+  console.log(requestSegments);
+  console.log(requestSegmentsObject);
   saucesModel
-    .findOne({
-      _id: req.params.id,
-    })
+    .findOne({ _id: req.body._id })
     .then((sauce) => {
-      res.status(200).json(sauce);
+      console.log(req.body);
+      if (!user) {
+        return res.status(200).json(sauce);
+      }
     })
     .catch((error) => {
       res.status(404).json({
         error: error,
       });
     });
+  console.log(typeof requestSegments[1]);
 };
 
 exports.saucesListUpdate = (req, res, next) => {
+  const sauceDataForm = JSON.parse(req.body.sauce);
   const sauces = new saucesModel({
-    _id: req.params.id,
-    userId: req.body.userId,
-    name: req.body.name,
-    manufacturer: req.body.manufacturer,
-    description: req.body.description,
-    mainPepper: req.body.mainPepper,
-    imageUrl: req.body.imageUrl,
-    heat: req.body.heat,
-    likes: req.body.heat,
-    dislikes: req.body.dislikes,
-    userLiked: req.body.userLiked,
-    userDisliked: req.body.userDisliked,
+    _id: sauceDataForm.id,
+    userId: sauceDataForm.userId,
+    name: sauceDataForm.name,
+    manufacturer: sauceDataForm.manufacturer,
+    description: sauceDataForm.description,
+    mainPepper: sauceDataForm.mainPepper,
+    imageUrl: sauceDataForm.imageUrl,
+    heat: sauceDataForm.heat,
+    likes: 0,
+    dislikes: 0,
+    userLiked: [],
+    userDisliked: [],
   });
   saucesModel
     .updateOne({ _id: req.params.id }, sauces)
