@@ -1,4 +1,5 @@
 const saucesModel = require("../models/sauces");
+const fs = require("fs");
 
 exports.saucesList = (req, res, next) => {
   saucesModel
@@ -28,12 +29,9 @@ exports.saucesList = (req, res, next) => {
 };
 
 exports.saucesSave = (req, res, next) => {
-  // if (!req.body.sauces) {
-  //   return res.status(400).json({ error: "Missing sauces data" });
-  // }
-  // req.body.sauces = JSON.parse(req.body.sauces);
+  console.log(req.body);
   const sauceDataForm = JSON.parse(req.body.sauce);
-  // console.log(sauceDataForm);
+  console.log(sauceDataForm);
   const sauces = new saucesModel({
     userId: sauceDataForm.userId,
     name: sauceDataForm.name,
@@ -44,20 +42,7 @@ exports.saucesSave = (req, res, next) => {
     heat: sauceDataForm.heat,
     likes: 0,
     dislikes: 0,
-    userLiked: [],
-    userDisliked: [],
   });
-  // console.log(sauces.userId);
-  // console.log(sauces.name);
-  // console.log(sauces.manufacturer);
-  // console.log(sauces.description);
-  // console.log(sauces.mainPepper);
-  // console.log(sauces.imageUrl);
-  // console.log(sauces.heat);
-  // console.log(sauces.likes);
-  // console.log(sauces.dislikes);
-  // console.log(sauces.userLiked);
-  // console.log(sauces.userDisliked);
 
   sauces
     .save()
@@ -68,7 +53,7 @@ exports.saucesSave = (req, res, next) => {
     })
 
     .catch((error) => {
-      console.log(error);
+      // console.log(error);
       res.status(400).json({
         error: error,
       });
@@ -76,44 +61,61 @@ exports.saucesSave = (req, res, next) => {
 };
 
 exports.saucesListId = (req, res, next) => {
-  const requestSegments = req.path.split("/");
-  const requestSegmentsObject = { id: requestSegments };
-  console.log(requestSegments);
-  console.log(requestSegmentsObject);
+  const sauceId = req.params.id;
   saucesModel
-    .findOne({ _id: req.body._id })
+    .findOne({ _id: sauceId })
     .then((sauce) => {
-      console.log(req.body);
-      if (!user) {
-        return res.status(200).json(sauce);
-      }
+      res.status(200).json({
+        ...sauce._doc,
+        imageUrl:
+          req.protocol + "://" + req.get("host") + "/images/" + sauce.imageUrl,
+      });
     })
     .catch((error) => {
       res.status(404).json({
         error: error,
       });
     });
-  console.log(typeof requestSegments[1]);
+  //   .catch((error) => {
+  //     res.status(404).json({
+  //       error: "here's the error",
+  //     });
+  //   });
 };
 
 exports.saucesListUpdate = (req, res, next) => {
-  const sauceDataForm = JSON.parse(req.body.sauce);
-  const sauces = new saucesModel({
-    _id: sauceDataForm.id,
-    userId: sauceDataForm.userId,
-    name: sauceDataForm.name,
-    manufacturer: sauceDataForm.manufacturer,
-    description: sauceDataForm.description,
-    mainPepper: sauceDataForm.mainPepper,
-    imageUrl: sauceDataForm.imageUrl,
-    heat: sauceDataForm.heat,
-    likes: 0,
-    dislikes: 0,
-    userLiked: [],
-    userDisliked: [],
-  });
+  console.log(req.body);
+  let sauce = new saucesModel({ _id: req.params._id });
+  console.log(sauce._id);
+  if (sauce) {
+    const sauceDataForm = JSON.parse(req.body.sauce);
+    console.log(sauceDataForm);
+    sauce = {
+      userId: sauceDataForm.userId,
+      name: sauceDataForm.name,
+      manufacturer: sauceDataForm.manufacturer,
+      description: sauceDataForm.description,
+      mainPepper: sauceDataForm.mainPepper,
+      imageUrl: req.file.filename,
+      heat: sauceDataForm.heat,
+      likes: 0,
+      dislikes: 0,
+    };
+  } else {
+    sauce = {
+      userId: sauceDataForm.userId,
+      name: sauceDataForm.name,
+      manufacturer: sauceDataForm.manufacturer,
+      description: sauceDataForm.description,
+      mainPepper: sauceDataForm.mainPepper,
+      imageUrl: req.file.filename,
+      heat: sauceDataForm.heat,
+      likes: 0,
+      dislikes: 0,
+    };
+  }
   saucesModel
-    .updateOne({ _id: req.params.id }, sauces)
+    .updateOne({ _id: req.params.id }, sauce)
     .then(() => {
       res.status(201).json({
         message: "sauce update successfully",
@@ -126,19 +128,39 @@ exports.saucesListUpdate = (req, res, next) => {
     });
 };
 exports.saucesDelete = (req, res, next) => {
-  saucesModel
-    .deleteOne({ _id: req.paramas.id })
-    .then(() => {
-      res.status(201).json({
-        message: "item deleted !",
-      });
-    })
-    .catch((error) => {
-      res.status(400).json({
-        error: error,
-      });
+  const test = req.body;
+  console.log(test);
+  saucesModel.findOne({ _id: req.params.id }).then((sauce) => {
+    const filename = sauce.imageUrl.split("/images")[1];
+    fs.unlink("images/" + filename, () => {
+      saucesModel
+        .deleteOne({ _id: req.params.id })
+        .then(() => {
+          res.status(201).json({
+            message: "item deleted !",
+          });
+        })
+        .catch((error) => {
+          res.status(400).json({
+            error: error,
+          });
+        });
     });
+  });
+  saucesModel.findOne({ _id: req.params.id }).then((sauce) => {
+    if (!sauce) {
+      return res.status(404).json({
+        error: new Error("No such thing!"),
+      });
+    }
+    if (sauce.userId !== req.auth.userId) {
+      return res.json(404).json({
+        error: new Error("No such thing!"),
+      });
+    }
+  });
 };
+
 // exports.saucesListLike = (req, res) => {
 //   const { userId } = req.body;
 //   const sauceId = req.params.id;
