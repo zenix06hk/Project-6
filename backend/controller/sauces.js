@@ -84,34 +84,37 @@ exports.saucesListId = (req, res, next) => {
 };
 
 exports.saucesListUpdate = (req, res, next) => {
-  console.log(req.body);
+  // console.log(req.body);
   let sauce = new saucesModel({ _id: req.params._id });
   console.log(sauce._id);
-  if (sauce) {
-    const sauceDataForm = JSON.parse(req.body.sauce);
-    console.log(sauceDataForm);
+  if (!sauce?._id) {
+    return res.status(401).json({
+      error: new Error("Sauce not found!"),
+    });
+  }
+  const sauceDataForm = req.body;
+  console.log(sauceDataForm.userId);
+
+  if (req.file) {
     sauce = {
-      userId: sauceDataForm.userId,
-      name: sauceDataForm.name,
-      manufacturer: sauceDataForm.manufacturer,
-      description: sauceDataForm.description,
-      mainPepper: sauceDataForm.mainPepper,
+      _id: req.params.id,
+      userId: sauceDataForm.sauce.userId,
+      name: sauceDataForm.sauce.name,
+      manufacturer: sauceDataForm.sauce.manufacturer,
+      description: sauceDataForm.sauce.description,
+      mainPepper: sauceDataForm.sauce.mainPepper,
       imageUrl: req.file.filename,
-      heat: sauceDataForm.heat,
-      likes: 0,
-      dislikes: 0,
+      heat: sauceDataForm.sauce.heat,
     };
   } else {
     sauce = {
+      _id: req.params.id,
       userId: sauceDataForm.userId,
       name: sauceDataForm.name,
       manufacturer: sauceDataForm.manufacturer,
       description: sauceDataForm.description,
       mainPepper: sauceDataForm.mainPepper,
-      imageUrl: req.file.filename,
       heat: sauceDataForm.heat,
-      likes: 0,
-      dislikes: 0,
     };
   }
   saucesModel
@@ -161,48 +164,60 @@ exports.saucesDelete = (req, res, next) => {
   });
 };
 
-// exports.saucesListLike = (req, res) => {
-//   const { userId } = req.body;
-//   const sauceId = req.params.id;
-//   const action = req.body.like;
+exports.saucesListLike = (req, res) => {
+  console.log(req.body);
 
-//   sauceData.findById(sauceId, (err, sauce) => {
-//     if (err) return res.status(500).json({ error: "Error finding sauce" });
-//     if (!sauce) return res.status(404).json({ error: "Sauce not found" });
-
-//     let userRecord = sauce.usersLiked.find((r) => r.userId === userId);
-
-//     if (!userRecord) {
-//       userRecord = { userId, likes: 0, dislikes: 0 };
-//       sauce.usersLiked.push(userRecord);
-//     }
-
-//     const updateLikes = () => {
-//       if (userRecord.likes % 2 === 0) {
-//         userRecord.likes = 0;
-//         sauce.usersLiked = sauce.usersLiked.filter((r) => r.userId !== userId);
-//       } else {
-//         userRecord.likes = Math.min(userRecord.likes + 1, 2);
-//       }
-//       return userRecord.likes;
-//     };
-
-//     const updateDislikes = () => {
-//       if (userRecord.dislikes % 2 === 0) {
-//         userRecord.dislikes = 0;
-//         sauce.usersLiked = sauce.usersLiked.filter((r) => r.userId !== userId);
-//       } else {
-//         userRecord.dislikes = Math.max(userRecord.dislikes - 1, -1);
-//       }
-//       return userRecord.dislikes;
-//     };
-
-//     sauce.save((err) => {
-//       if (err) return res.status(500).json({ error: "Error saving sauce" });
-//       res.json({
-//         likes: action === 1 ? updateLikes() : userRecord.likes,
-//         dislikes: action === -1 ? updateDislikes() : userRecord.dislikes,
-//       });
-//     });
-//   });
-// };
+  // const addLikeData = req.body.like;
+  saucesModel.findOne({ _id: req.params.id }).then((sauce) => {
+    const like = req.body.like;
+    if (like === 1) {
+      sauce.usersLiked.push(req.body.userId);
+    } else if (like === -1) {
+      sauce.usersDisliked.push(req.body.userId);
+      } else{
+        if (sauce.userLiked.include(userId)){
+          sauce.usersLiked.splice(userId);
+        }
+        else (sauce.userDisliked.include(userId)){
+          sauce.usersDisliked.splice(userId);
+    }
+  }});
+  // console.log(req.body);
+  // const { userId } = req.body;
+  // const sauceId = req.params.id;
+  // const action = req.body.like;
+  // sauceData.findById(sauceId, (err, sauce) => {
+  //   if (err) return res.status(500).json({ error: "Error finding sauce" });
+  //   if (!sauce) return res.status(404).json({ error: "Sauce not found" });
+  //   let userRecord = sauce.usersLiked.find((r) => r.userId === userId);
+  //   if (!userRecord) {
+  //     userRecord = { userId, likes: 0, dislikes: 0 };
+  //     sauce.usersLiked.push(userRecord);
+  //   }
+  //   const updateLikes = () => {
+  //     if (userRecord.likes % 2 === 0) {
+  //       userRecord.likes = 0;
+  //       sauce.usersLiked = sauce.usersLiked.filter((r) => r.userId !== userId);
+  //     } else {
+  //       userRecord.likes = Math.min(userRecord.likes + 1, 2);
+  //     }
+  //     return userRecord.likes;
+  //   };
+  //   const updateDislikes = () => {
+  //     if (userRecord.dislikes % 2 === 0) {
+  //       userRecord.dislikes = 0;
+  //       sauce.usersLiked = sauce.usersLiked.filter((r) => r.userId !== userId);
+  //     } else {
+  //       userRecord.dislikes = Math.max(userRecord.dislikes - 1, -1);
+  //     }
+  //     return userRecord.dislikes;
+  //   };
+  //   sauce.save((err) => {
+  //     if (err) return res.status(500).json({ error: "Error saving sauce" });
+  //     res.json({
+  //       likes: action === 1 ? updateLikes() : userRecord.likes,
+  //       dislikes: action === -1 ? updateDislikes() : userRecord.dislikes,
+  //     });
+  //   });
+  // });
+};
