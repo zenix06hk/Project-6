@@ -163,61 +163,82 @@ exports.saucesDelete = (req, res, next) => {
     }
   });
 };
-
 exports.saucesListLike = (req, res) => {
-  console.log(req.body);
-
-  // const addLikeData = req.body.like;
-  saucesModel.findOne({ _id: req.params.id }).then((sauce) => {
-    const like = req.body.like;
-    if (like === 1) {
-      sauce.usersLiked.push(req.body.userId);
-    } else if (like === -1) {
-      sauce.usersDisliked.push(req.body.userId);
-      } else{
-        if (sauce.userLiked.include(userId)){
-          sauce.usersLiked.splice(userId);
-        }
-        else (sauce.userDisliked.include(userId)){
-          sauce.usersDisliked.splice(userId);
-    }
-  }});
   // console.log(req.body);
-  // const { userId } = req.body;
-  // const sauceId = req.params.id;
-  // const action = req.body.like;
-  // sauceData.findById(sauceId, (err, sauce) => {
-  //   if (err) return res.status(500).json({ error: "Error finding sauce" });
-  //   if (!sauce) return res.status(404).json({ error: "Sauce not found" });
-  //   let userRecord = sauce.usersLiked.find((r) => r.userId === userId);
-  //   if (!userRecord) {
-  //     userRecord = { userId, likes: 0, dislikes: 0 };
-  //     sauce.usersLiked.push(userRecord);
-  //   }
-  //   const updateLikes = () => {
-  //     if (userRecord.likes % 2 === 0) {
-  //       userRecord.likes = 0;
-  //       sauce.usersLiked = sauce.usersLiked.filter((r) => r.userId !== userId);
-  //     } else {
-  //       userRecord.likes = Math.min(userRecord.likes + 1, 2);
-  //     }
-  //     return userRecord.likes;
-  //   };
-  //   const updateDislikes = () => {
-  //     if (userRecord.dislikes % 2 === 0) {
-  //       userRecord.dislikes = 0;
-  //       sauce.usersLiked = sauce.usersLiked.filter((r) => r.userId !== userId);
-  //     } else {
-  //       userRecord.dislikes = Math.max(userRecord.dislikes - 1, -1);
-  //     }
-  //     return userRecord.dislikes;
-  //   };
-  //   sauce.save((err) => {
-  //     if (err) return res.status(500).json({ error: "Error saving sauce" });
-  //     res.json({
-  //       likes: action === 1 ? updateLikes() : userRecord.likes,
-  //       dislikes: action === -1 ? updateDislikes() : userRecord.dislikes,
-  //     });
-  //   });
-  // });
+
+  saucesModel
+    .findOne({ _id: req.params.id })
+    .then((sauce) => {
+      const like = req.body.like;
+      const userId = req.body.userId;
+      // console.log(req.body);
+      // console.log(like);
+      // console.log(userId);
+      // console.log(sauce);
+      // console.log(sauce.usersLiked);
+      if (like === 1) {
+        if (sauce.usersLiked.includes(userId)) {
+          sauce.usersLiked = sauce.usersLiked.filter((item) => item !== userId);
+        } else {
+          sauce.usersLiked.push(userId);
+          sauce.likes++;
+          // console.log(sauce.usersLiked);
+        }
+        if (sauce.usersDisliked.includes(userId)) {
+          sauce.usersDisliked = sauce.usersDisliked.filter(
+            (item) => item !== userId
+          );
+          sauce.dislikes--;
+          // console.log(sauce.usersDisliked);
+        }
+      } else if (like === -1) {
+        if (sauce.usersDisliked.includes(userId)) {
+          // console.log(sauce.usersDisliked);
+
+          sauce.usersDisliked = sauce.usersDisliked.filter(
+            (item) => item !== userId
+          );
+        } else {
+          sauce.usersDisliked.push(userId);
+          sauce.dislikes++;
+          // console.log(sauce.usersLiked);
+        }
+        if (sauce.usersLiked.includes(userId)) {
+          sauce.usersLiked = sauce.usersLiked.filter((item) => item !== userId);
+          sauce.likes--;
+          // console.log(sauce.usersDisliked);
+        }
+      } else if (like === 0) {
+        if (sauce.usersLiked.includes(userId)) {
+          sauce.usersLiked = sauce.usersLiked.filter((item) => item !== userId);
+          sauce.likes--;
+        }
+        if (sauce.usersDisliked.includes(userId)) {
+          // console.log(sauce.usersDisliked);
+
+          sauce.usersDisliked = sauce.usersDisliked.filter(
+            (item) => item !== userId
+          );
+          sauce.dislikes--;
+        }
+      }
+      saucesModel
+        .updateOne({ _id: req.params.id }, sauce)
+        .then(() => {
+          res.status(201).json({
+            message: "Like/dislike update successfully",
+          });
+        })
+        .catch((error) => {
+          res.status(400).json({
+            error: error,
+          });
+        });
+      // console.log(sauce);
+    })
+    .catch((error) => {
+      res.status(404).json({
+        error: error,
+      });
+    });
 };
