@@ -1,70 +1,55 @@
 const userModel = require("../models/user");
+
+//Password-hashing functio
 const bcrypt = require("bcrypt");
+
+//To securely transfer information over the web
 const jwt = require("jsonwebtoken");
 const saltRounds = 10;
-// exports.testSave = (req, res) => {
-//   const userData = new userModel({
-//     email: req.body.email,
-//     password: req.body.password,
-//   });
 
-//   userData
-//     .save()
-//     .then(() => {
-//       res.status(201).json({
-//         message: " This has saved",
-//       });
-//     })
-//     .catch((error) => {
-//       res.status(500).json({
-//         error: "it failed",
-//         message: error.message,
-//       });
-//     });
-// };
-
+//Controller for creating a user account
 exports.signUp = (req, res) => {
   bcrypt
     .hash(req.body.password, saltRounds)
     .then((hash) => {
-      // console.log(req.body.password);
-      // console.log("hash", hash);
       const newUser = new userModel({
         email: req.body.email,
         password: hash,
       });
       newUser
-        .save()
+        .save() //save the user to the database
         .then(() => {
-          res.status(200).json({ message: "Password encrypt" });
+          res.status(200).json({ error: new Error("User created.") });
         })
         .catch((error) => {
           res.status(500).json({ error: error });
-          // res.status(500).json({ message: "Password failed encrypt" });
         });
     })
     .catch((error) => {
-      console.log(error.message);
+      res.status(500).json({ error: error });
     });
 };
 
+//Controller for login user account
 exports.login = (req, res) => {
   userModel
-    .findOne({ email: req.body.email })
+    .findOne({ email: req.body.email }) //compare the username email address
     .then((user) => {
       if (!user) {
         return res.status(401).json({
-          error: new Error("User not found!"),
+          error: new error("User not found!"),
         });
       }
       bcrypt
-        .compare(req.body.password, user.password)
+        .compare(req.body.password, user.password) //Compare the password
         .then((valid) => {
           if (!valid) {
             return res.status(401).json({
-              error: new Error("Incorrect password!"),
+              error: new error("Incorrect password!"),
             });
           }
+
+          //Creation of the authentication token
           const token = jwt.sign({ userId: user._id }, "RANDOM_TOKEN_SECRET", {
             expiresIn: "24h",
           });
@@ -79,15 +64,10 @@ exports.login = (req, res) => {
           });
         });
     })
+    //Server error
     .catch((error) => {
       res.status(501).json({
         error: error,
       });
     });
 };
-
-// exports.login = (req, res) => {
-//   res.status(200).json({
-//     message: " This is point to login POST",
-//   });
-// };
