@@ -1,14 +1,14 @@
 const express = require("express");
 
-//Routes decalre
+//Routes declare
 const router = express.Router();
 
 const auth = require("../middleware/auth");
 
-//Import handleing files upload
+//Import handling files upload
 const multer = require("../middleware/multer-config");
 
-//Import suace controller
+//Import sauce controller
 const saucesCtrl = require("../controller/sauces");
 
 //Adding controllers to routes (including authentication middleware and file management)

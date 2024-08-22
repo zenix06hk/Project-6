@@ -19,10 +19,12 @@ exports.signUp = (req, res) => {
       newUser
         .save() //save the user to the database
         .then(() => {
-          res.status(200).json({ error: new Error("User created.") });
+          res.status(200).json({ message: "Sign up successful." });
         })
         .catch((error) => {
-          res.status(500).json({ error: error });
+          res
+            .status(500)
+            .json({ message: "Email has been sign up.", error: error });
         });
     })
     .catch((error) => {

@@ -15,7 +15,7 @@ export class AuthService {
 
   createUser(email: string, password: string) {
     return this.http.post<{ message: string }>(
-      'http://localhost:4000/api/auth/signup',
+      'http://localhost:3000/api/auth/signup',
       { email: email, password: password }
     );
   }
@@ -31,7 +31,7 @@ export class AuthService {
   loginUser(email: string, password: string) {
     return this.http
       .post<{ userId: string; token: string }>(
-        'http://localhost:4000/api/auth/login',
+        'http://localhost:3000/api/auth/login',
         { email: email, password: password }
       )
       .pipe(
