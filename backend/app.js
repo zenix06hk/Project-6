@@ -9,14 +9,14 @@ const authRoutes = require("./routes/auth.js");
 
 app.use(cors());
 
-//mongodb+srv://alvin06hk:<password>@database-z.p8xkqwp.mongodb.net/?retryWrites=true&w=majority&appName=database-z
-
 mongoose
-  .connect(
-    "mongodb+srv://alvin06hk:Ve4arWp50SWMlcB7@database-z.p8xkqwp.mongodb.net/"
-  )
+  .connect("mongodb+srv://alvin06hk:test1234@database-z.p8xkqwp.mongodb.net/", {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
   .then(() => {
     console.log("Successfully connected to MongoDB Atlas!");
+    // console.log(encodeURIComponent("#MyP@assword?"));
   })
   .catch((error) => {
     console.log("Unable to connect to MongoDB Atlas!");
