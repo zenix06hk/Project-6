@@ -43,7 +43,6 @@ exports.saucesSave = (req, res, next) => {
     likes: 0,
     dislikes: 0,
   });
-
   sauces
     .save()
     .then(() => {
@@ -57,6 +56,8 @@ exports.saucesSave = (req, res, next) => {
         error: error,
       });
     });
+  //console.log(saucesDataForm)
+  //console.log(sauces)
 };
 
 //Get the single sauce - controller GET
@@ -76,6 +77,7 @@ exports.saucesListId = (req, res, next) => {
         error: error,
       });
     });
+  //console.log(sacueId)
 };
 
 //Update the sauce info - controller PUT
